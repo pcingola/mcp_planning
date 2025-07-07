@@ -1,5 +1,7 @@
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 from typing import List, Optional
+
+from mcp_planning.utils import get_session_id_tuple
 
 from .storage import Storage
 from .task import Task
@@ -15,18 +17,6 @@ mcp = FastMCP(
 
 # Initialize the storage
 storage = Storage()
-
-
-def get_session_id_tuple(ctx: Context | None) -> tuple[str, str]:
-    """Get the user ID and session ID from the context."""
-    user_id = "default_user"
-    session_id = "default_session"
-    
-    if ctx and ctx.request and ctx.request.headers:
-        user_id = ctx.request.headers.get("user-id", user_id)
-        session_id = ctx.request.headers.get("session-id", session_id)
-    
-    return user_id, session_id
 
 
 @mcp.tool()
