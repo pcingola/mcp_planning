@@ -189,5 +189,5 @@ logs/
 # vscode
 .vscode/
 
-
 **/PROMPT*.md
+.roo
