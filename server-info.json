@@ -1,0 +1,189 @@
+{
+  "name": "PlanningServer",
+  "instructions": "A server for managing task planning. Use this to create, update, and track tasks.",
+  "fastmcp_version": "2.10.2",
+  "mcp_version": "1.10.1",
+  "server_version": "2.10.2",
+  "tools": [
+    {
+      "key": "add_task",
+      "name": "add_task",
+      "description": "Add a new task with the given description.",
+      "input_schema": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "description"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "get_tasks",
+      "name": "get_tasks",
+      "description": "Get all tasks, optionally filtered by state.\n\nArgs:\n    state: Filter tasks by state (pending, in_progress, completed, failed)",
+      "input_schema": {
+        "properties": {
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "State"
+          }
+        },
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "get_task",
+      "name": "get_task",
+      "description": "Get a task by its ID.",
+      "input_schema": {
+        "properties": {
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "update_task_state",
+      "name": "update_task_state",
+      "description": "Update a task's state.\n\nArgs:\n    task_id: The ID of the task to update\n    state: The new state (pending, in_progress, completed, failed)",
+      "input_schema": {
+        "properties": {
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id",
+          "state"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "delete_task",
+      "name": "delete_task",
+      "description": "Delete a task by its ID.",
+      "input_schema": {
+        "properties": {
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task_id"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "add_subtask",
+      "name": "add_subtask",
+      "description": "Add a subtask to an existing task.",
+      "input_schema": {
+        "properties": {
+          "parent_task_id": {
+            "title": "Parent Task Id",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "parent_task_id",
+          "description"
+        ],
+        "type": "object"
+      },
+      "annotations": null,
+      "tags": null,
+      "enabled": true
+    }
+  ],
+  "prompts": [],
+  "resources": [
+    {
+      "key": "tasks://users",
+      "uri": "tasks://users",
+      "name": "get_users",
+      "description": "Get all user IDs that have stored task lists.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    }
+  ],
+  "templates": [
+    {
+      "key": "tasks://{user_id}/{session_id}",
+      "uri_template": "tasks://{user_id}/{session_id}",
+      "name": "get_task_list_resource",
+      "description": "Get the task list for a specific user and session.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    },
+    {
+      "key": "tasks://sessions/{user_id}",
+      "uri_template": "tasks://sessions/{user_id}",
+      "name": "get_user_sessions",
+      "description": "Get all session IDs for a specific user.",
+      "mime_type": "text/plain",
+      "tags": null,
+      "enabled": true
+    }
+  ],
+  "capabilities": {
+    "tools": {
+      "listChanged": true
+    },
+    "resources": {
+      "subscribe": false,
+      "listChanged": false
+    },
+    "prompts": {
+      "listChanged": false
+    },
+    "logging": {}
+  }
+}

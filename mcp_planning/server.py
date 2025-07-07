@@ -1,18 +1,18 @@
 from fastmcp import Context, FastMCP
-from typing import List, Optional
+from typing import Any
 
 from mcp_planning.utils import get_session_id_tuple
 
-from .storage import Storage
-from .task import Task
-from .task_list import TaskList
-from .task_state import TaskState
+from mcp_planning.storage import Storage
+from mcp_planning.task import Task
+from mcp_planning.task_list import TaskList
+from mcp_planning.task_state import TaskState
 
 
 # Initialize the MCP server
 mcp = FastMCP(
-    name="PlanningServer",
-    instructions="A server for managing task planning. Use this to create, update, and track tasks."
+    name="To do Server",
+    instructions="A server for managing task planning as a 'to do' list. Use this to create, update, and track tasks."
 )
 
 # Initialize the storage
@@ -32,7 +32,7 @@ def add_task(ctx: Context, description: str) -> Task:
 
 
 @mcp.tool()
-def get_tasks(ctx: Context, state: Optional[str] = None) -> List[Task]:
+def get_tasks(ctx: Context, state: str | None = None) -> list[Task]:
     """
     Get all tasks, optionally filtered by state.
     
@@ -53,7 +53,7 @@ def get_tasks(ctx: Context, state: Optional[str] = None) -> List[Task]:
 
 
 @mcp.tool()
-def get_task(ctx: Context, task_id: str) -> Optional[Task]:
+def get_task(ctx: Context, task_id: str) -> Task | None:
     """Get a task by its ID."""
     user_id, session_id = get_session_id_tuple(ctx)
     task_list = storage.get_or_create_task_list(user_id, session_id)
@@ -129,19 +129,19 @@ def add_subtask(ctx: Context, parent_task_id: str, description: str) -> Task:
 
 
 @mcp.resource("tasks://{user_id}/{session_id}")
-def get_task_list_resource(user_id: str, session_id: str) -> Optional[TaskList]:
+def get_task_list_resource(user_id: str, session_id: str) -> TaskList | None:
     """Get the task list for a specific user and session."""
     return storage.load_task_list(user_id, session_id)
 
 
 @mcp.resource("tasks://sessions/{user_id}")
-def get_user_sessions(user_id: str) -> List[str]:
+def get_user_sessions(user_id: str) -> list[str]:
     """Get all session IDs for a specific user."""
     return storage.list_user_sessions(user_id)
 
 
 @mcp.resource("tasks://users")
-def get_users() -> List[str]:
+def get_users() -> list[str]:
     """Get all user IDs that have stored task lists."""
     return storage.list_users()
 

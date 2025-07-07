@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Any
 
 from .config import DATA_DIR
 from .task_list import TaskList
@@ -35,7 +35,7 @@ class Storage:
         with open(file_path, "w") as f:
             f.write(task_list.model_dump_json(indent=2))
     
-    def load_task_list(self, user_id: str, session_id: str) -> Optional[TaskList]:
+    def load_task_list(self, user_id: str, session_id: str) -> TaskList | None:
         """Load a task list from the filesystem."""
         file_path = self.get_task_file_path(user_id, session_id)
         

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import Any
 from uuid import uuid4
 
 from .task import Task
@@ -8,7 +8,7 @@ from .task_state import TaskState
 
 class TaskList(BaseModel):
     """A collection of tasks."""
-    tasks: List[Task] = []
+    tasks: list[Task] = []
     
     def __str__(self) -> str:
         return f"TaskList(tasks={len(self.tasks)})"
@@ -34,6 +34,6 @@ class TaskList(BaseModel):
             return True
         return False
     
-    def get_tasks_by_state(self, state: TaskState) -> List[Task]:
+    def get_tasks_by_state(self, state: TaskState) -> list[Task]:
         """Get all tasks with the specified state."""
         return [task for task in self.tasks if task.state == state]

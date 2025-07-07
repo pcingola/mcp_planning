@@ -13,7 +13,6 @@ DATA_DIR = PROJECT_DIR / "data"
 SERVER_NAME = os.getenv("SERVER_NAME", "PlanningServer")
 SERVER_HOST = os.getenv("SERVER_HOST", "127.0.0.1")
 SERVER_PORT = int(os.getenv("SERVER_PORT", "9000"))
-SERVER_TRANSPORT = os.getenv("SERVER_TRANSPORT", "streamable-http")
 
 # Ensure data directory exists
 DATA_DIR.mkdir(exist_ok=True)

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Any
 from uuid import uuid4
 
 from .task_state import TaskState
@@ -10,7 +10,7 @@ class Task(BaseModel):
     id: str
     description: str
     state: TaskState = TaskState.PENDING
-    subtasks: List["Task"] = []
+    subtasks: list["Task"] = []
     
     def __str__(self) -> str:
         return f"Task({self.id}, {self.description}, {self.state}, subtasks={len(self.subtasks)})"
@@ -33,6 +33,6 @@ class Task(BaseModel):
         """Mark the task as failed."""
         self.state = TaskState.FAILED
     
-    def get_subtasks_by_state(self, state: TaskState) -> List["Task"]:
+    def get_subtasks_by_state(self, state: TaskState) -> list["Task"]:
         """Get all subtasks with the specified state."""
         return [task for task in self.subtasks if task.state == state]
