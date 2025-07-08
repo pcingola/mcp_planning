@@ -3,12 +3,16 @@ FastMCP server for planning Agentic tasks.
 Provides tools for managing task lists with user/session isolation.
 """
 
+import logging
 from fastmcp import FastMCP, Context
 from fastmcp.server import dependencies
 
 from mcp_planning.config import SERVER_NAME, SERVER_HOST, SERVER_PORT
 from mcp_planning.models import TaskList, TaskState
 from mcp_planning.utils import get_session_id_tuple
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Initialize the MCP server
 mcp = FastMCP(
@@ -59,7 +63,7 @@ def add_task(description: str, parent_task_id: str | None = None, ctx: Context |
         parent_task_id: The ID of the parent task to add this task under (optional, e.g. parent_task_id="1.3")
         
     Returns:
-        The ID of the newly created task (e.g. "1.3.2")
+        The ID of the newly created task (e.g. "1.3.2") or an error message if the parent task ID is invalid.
     """
     # Get the task list for this user/session
     task_list = get_task_list(ctx)
@@ -68,16 +72,20 @@ def add_task(description: str, parent_task_id: str | None = None, ctx: Context |
     if parent_task_id:
         parent_task = task_list.get_task_by_id(parent_task_id)
         if not parent_task:
-            raise ValueError(f"Parent task with ID '{parent_task_id}' not found.")
+            # Provide a clean error message without stack trace
+            return f"ERROR: Parent task with ID '{parent_task_id}' not found."
         task = parent_task.add_task(description)
+        # For subtasks, we need to return the full hierarchical ID
+        task_id = f"{parent_task_id}.{task.get_id()}"
     else:
         task = task_list.add_task(description)
+        task_id = task.get_id()
 
     # Save the updated task list
     save_task_list(task_list, ctx)
     
     # Return the task ID
-    return task.get_id()
+    return task_id
 
 
 @mcp.tool()

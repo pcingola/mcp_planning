@@ -251,5 +251,41 @@ class TestTaskListModel(unittest.TestCase):
         self.assertNotEqual(task_list3, task_list4)
 
 
+    def test_delete_subtask_specific(self):
+        """Test specifically for deleting subtasks with hierarchical IDs."""
+        # Create a task list with a parent task
+        task_list = TaskList()
+        parent_task = task_list.add_task("Parent Task")
+        
+        # Add two subtasks
+        subtask1 = parent_task.add_task("Subtask to keep")
+        subtask2 = parent_task.add_task("Subtask to delete")
+        
+        # Verify the subtasks were added correctly
+        self.assertIsNotNone(parent_task.subtasks)
+        assert parent_task.subtasks is not None  # For Pylance
+        self.assertEqual(len(parent_task.subtasks.tasks), 2)
+        self.assertEqual(parent_task.subtasks.tasks[0].description, "Subtask to keep")
+        self.assertEqual(parent_task.subtasks.tasks[1].description, "Subtask to delete")
+        
+        # Get the IDs
+        parent_id = parent_task.get_id()
+        subtask1_id = subtask1.get_id("1")
+        subtask2_id = subtask2.get_id("1")
+        
+        # Delete the second subtask
+        success = task_list.delete(subtask2_id)
+        
+        # Verify the deletion was successful
+        self.assertTrue(success)
+        self.assertIsNotNone(parent_task.subtasks)
+        assert parent_task.subtasks is not None  # For Pylance
+        self.assertEqual(len(parent_task.subtasks.tasks), 1)
+        self.assertEqual(parent_task.subtasks.tasks[0].description, "Subtask to keep")
+        
+        # Verify the subtask is no longer in the task list
+        self.assertIsNone(task_list.get_task_by_id(subtask2_id))
+
+
 if __name__ == "__main__":
     unittest.main()

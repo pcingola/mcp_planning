@@ -56,6 +56,30 @@ class Task(BaseModel):
         # Fallback (should not happen)
         return "?"
     
+    def delete(self, task_id: str) -> bool:
+        """Delete a subtask by its ID.
+        
+        Args:
+            task_id: The ID of the subtask to delete (e.g. "1" for the first subtask)
+            
+        Returns:
+            True if the subtask was found and deleted, False otherwise
+        """
+        # Ensure subtasks is initialized
+        if self.subtasks is None:
+            return False
+            
+        # Try to delete the subtask by index
+        try:
+            index = int(task_id) - 1
+            if 0 <= index < len(self.subtasks.tasks):
+                # Remove the subtask
+                self.subtasks.tasks.pop(index)
+                return True
+            return False
+        except (ValueError, IndexError):
+            return False
+    
     def to_markdown(self, level: int = 0, parent_id: str = "") -> str:
         """Convert task to markdown format."""
         task_id = self.get_id(parent_id)
@@ -110,6 +134,19 @@ class Task(BaseModel):
             return False
             
         return True
+        
+    def __getitem__(self, key: str | int) -> "Task | None":
+        """Allow accessing subtasks by their ID using dictionary-like syntax.
+        
+        Examples:
+            task["2"] will return the second subtask
+            task[2] will return the second subtask
+        """
+        # Ensure subtasks is initialized
+        if self.subtasks is None:
+            return None
+        # Delegate to TaskList's __getitem__
+        return self.subtasks[key]
 
 
 class TaskList(BaseModel):
@@ -179,9 +216,9 @@ class TaskList(BaseModel):
             parent_id = ".".join(id_parts[:-1])
             parent_task = self.get_task_by_id(parent_id)
             
-            if parent_task and parent_task.subtasks:
-                # Delete from the subtasks using the last part of the ID
-                return parent_task.subtasks.delete(id_parts[-1])
+            if parent_task:
+                # Delete from the parent task using the last part of the ID
+                return parent_task.delete(id_parts[-1])
             return False
             
         # Handle direct child task (single-level ID)
@@ -282,4 +319,21 @@ class TaskList(BaseModel):
                 return False
                 
         return True
+        
+    def __getitem__(self, key: str | int) -> Task | None:
+        """Allow accessing tasks by their hierarchical ID using dictionary-like syntax.
+        
+        Examples:
+            task_list["1.2.3"] will return the task with ID "1.2.3"
+            task_list[1] will return the first task in the list
+        """
+        if isinstance(key, int):
+            # Handle integer index (1-based to match task ID convention)
+            try:
+                return self.tasks[key - 1]
+            except IndexError:
+                return None
+        else:
+            # Handle string ID
+            return self.get_task_by_id(key)
 
