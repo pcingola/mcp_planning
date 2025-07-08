@@ -150,9 +150,8 @@ class TestTaskListModel(unittest.TestCase):
         self.assertIn("- [ ] 1.1.1: Nested Task 1.1.1", markdown)
         self.assertIn("- [ ] 1.1.2: Nested Task 1.1.2", markdown)
         
-        # Delete item "1.1.1"
-        assert subtask1.subtasks is not None  # For Pylance
-        subtask1.subtasks.tasks.remove(subsubtask1)
+        # Delete item "1.1.1" using the new delete method
+        task_list.delete("1.1.1")
         
         # Check that the new item "1.1.1" is the former "1.1.2"
         updated_markdown = task_list.to_markdown()
@@ -165,6 +164,51 @@ class TestTaskListModel(unittest.TestCase):
         assert updated_subsubtask is not None  # For Pylance
         self.assertEqual(updated_subsubtask.description, "Nested Task 1.1.2")
         self.assertEqual(updated_subsubtask.get_id("1.1"), "1.1.1")
+
+
+    def test_delete_method(self):
+        """Test the delete method for tasks and subtasks."""
+        # Create a task list with some tasks
+        task_list = TaskList()
+        task1 = task_list.add_task("Task 1")
+        task2 = task_list.add_task("Task 2")
+        task3 = task_list.add_task("Task 3")
+        
+        # Add subtasks to task1
+        subtask1 = task1.add_task("Subtask 1.1")
+        subtask2 = task1.add_task("Subtask 1.2")
+        
+        # Add a nested subtask
+        nested_subtask = subtask1.add_task("Nested 1.1.1")
+        
+        # Test deleting a top-level task
+        self.assertTrue(task_list.delete("2"))
+        self.assertEqual(len(task_list.tasks), 2)
+        self.assertEqual(task_list.tasks[0].description, "Task 1")
+        self.assertEqual(task_list.tasks[1].description, "Task 3")
+        
+        # Check that IDs are updated
+        self.assertEqual(task_list.tasks[1].get_id(), "2")
+        
+        # Test deleting a subtask
+        self.assertTrue(task_list.delete("1.2"))
+        subtasks = task1.subtasks
+        self.assertIsNotNone(subtasks)
+        assert subtasks is not None  # For Pylance
+        self.assertEqual(len(subtasks.tasks), 1)
+        self.assertEqual(subtasks.tasks[0].description, "Subtask 1.1")
+        
+        # Test deleting a nested subtask
+        self.assertTrue(task_list.delete("1.1.1"))
+        nested_subtasks = subtask1.subtasks
+        self.assertIsNotNone(nested_subtasks)
+        assert nested_subtasks is not None  # For Pylance
+        self.assertEqual(len(nested_subtasks.tasks), 0)
+        
+        # Test deleting non-existent tasks
+        self.assertFalse(task_list.delete("4"))  # Non-existent top-level
+        self.assertFalse(task_list.delete("1.3"))  # Non-existent subtask
+        self.assertFalse(task_list.delete("1.1.2"))  # Non-existent nested subtask
 
 
 if __name__ == "__main__":

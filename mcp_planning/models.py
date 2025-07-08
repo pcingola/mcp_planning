@@ -26,6 +26,13 @@ class Task(BaseModel):
     parent: "TaskList | None" = None
     subtasks: "TaskList | None" = None
     
+
+    def add_task(self, description: str) -> "Task":
+        """Add a new task to the sub-tasks."""
+        if self.subtasks is None:
+            self.subtasks = TaskList(parent_task=self)
+        return self.subtasks.add_task(description)
+
     def model_post_init(self, __context):
         """Initialize subtasks after model initialization."""
         if self.subtasks is None:
@@ -77,6 +84,8 @@ class Task(BaseModel):
     def __str__(self) -> str:
         return self.to_markdown()
 
+    def __repr__(self) -> str:
+        return self.to_markdown()
 
 
 class TaskList(BaseModel):
@@ -125,6 +134,42 @@ class TaskList(BaseModel):
             task.state = state
             return True
         return False
+    
+    def delete(self, task_id: str) -> bool:
+        """Delete a task by its ID.
+        
+        If the task has subtasks, they will be deleted recursively.
+        Returns True if the task was found and deleted, False otherwise.
+        """
+        if not task_id or not self.tasks:
+            return False
+            
+        # Parse the ID components
+        id_parts = task_id.split(".")
+        if not id_parts:
+            return False
+            
+        # If we have a hierarchical ID, we need to find the parent task list
+        if len(id_parts) > 1:
+            # Get the parent task
+            parent_id = ".".join(id_parts[:-1])
+            parent_task = self.get_task_by_id(parent_id)
+            
+            if parent_task and parent_task.subtasks:
+                # Delete from the subtasks using the last part of the ID
+                return parent_task.subtasks.delete(id_parts[-1])
+            return False
+            
+        # Handle direct child task (single-level ID)
+        try:
+            index = int(id_parts[0]) - 1
+            if 0 <= index < len(self.tasks):
+                # Remove the task
+                self.tasks.pop(index)
+                return True
+            return False
+        except (ValueError, IndexError):
+            return False
     
     def save(self, user_id: str, session_id: str) -> Path:
         """Save the task list to disk."""
@@ -193,5 +238,8 @@ class TaskList(BaseModel):
         }
 
     def __str__(self) -> str:
+        return self.to_markdown()
+
+    def __repr__(self) -> str:
         return self.to_markdown()
 
