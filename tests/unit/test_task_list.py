@@ -119,5 +119,53 @@ class TestTaskListModel(unittest.TestCase):
         self.assertIn("- [ ] 1.1: Subtask 1.1", markdown)
 
 
+    def test_delete_task_and_renumber(self):
+        """Test deleting a task and checking that IDs are renumbered correctly."""
+        # Create a task list with 10 items
+        task_list = TaskList()
+        for i in range(1, 11):
+            task_list.add_task(f"Main Task {i}")
+        
+        # Add nested tasks to create "1.1.1" and "1.1.2"
+        task1 = task_list.get_task_by_id("1")
+        self.assertIsNotNone(task1)
+        assert task1 is not None  # For Pylance
+        
+        # Add subtask 1.1
+        self.assertIsNotNone(task1.subtasks)
+        assert task1.subtasks is not None  # For Pylance
+        subtask1 = task1.subtasks.add_task("Subtask 1.1")
+        
+        # Add subtasks 1.1.1 and 1.1.2
+        self.assertIsNotNone(subtask1.subtasks)
+        assert subtask1.subtasks is not None  # For Pylance
+        subsubtask1 = subtask1.subtasks.add_task("Nested Task 1.1.1")
+        subsubtask2 = subtask1.subtasks.add_task("Nested Task 1.1.2")
+        
+        # Show the markdown and check it
+        markdown = task_list.to_markdown()
+        self.assertIn("# Task List", markdown)
+        self.assertIn("- [ ] 1: Main Task 1", markdown)
+        self.assertIn("- [ ] 1.1: Subtask 1.1", markdown)
+        self.assertIn("- [ ] 1.1.1: Nested Task 1.1.1", markdown)
+        self.assertIn("- [ ] 1.1.2: Nested Task 1.1.2", markdown)
+        
+        # Delete item "1.1.1"
+        assert subtask1.subtasks is not None  # For Pylance
+        subtask1.subtasks.tasks.remove(subsubtask1)
+        
+        # Check that the new item "1.1.1" is the former "1.1.2"
+        updated_markdown = task_list.to_markdown()
+        self.assertIn("- [ ] 1.1.1: Nested Task 1.1.2", updated_markdown)
+        self.assertNotIn("- [ ] 1.1.2:", updated_markdown)
+        
+        # Verify the task ID has been updated
+        updated_subsubtask = subtask1.subtasks.get_task_by_id("1")
+        self.assertIsNotNone(updated_subsubtask)
+        assert updated_subsubtask is not None  # For Pylance
+        self.assertEqual(updated_subsubtask.description, "Nested Task 1.1.2")
+        self.assertEqual(updated_subsubtask.get_id("1.1"), "1.1.1")
+
+
 if __name__ == "__main__":
     unittest.main()
