@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from typing import cast
 
-from mcp_planning.models import Task, TaskList, TaskState
+from mcp_todo.models import Task, TaskList, TaskState
 
 
 class TestTaskModel(unittest.TestCase):

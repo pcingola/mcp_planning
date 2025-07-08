@@ -7,9 +7,9 @@ import logging
 from fastmcp import FastMCP, Context
 from fastmcp.server import dependencies
 
-from mcp_planning.config import SERVER_NAME, SERVER_HOST, SERVER_PORT
-from mcp_planning.models import TaskList, TaskState
-from mcp_planning.utils import get_session_id_tuple
+from mcp_todo.config import SERVER_NAME, SERVER_HOST, SERVER_PORT
+from mcp_todo.models import TaskList, TaskState
+from mcp_todo.utils import get_session_id_tuple
 
 # Set up logging
 logger = logging.getLogger(__name__)

@@ -5,8 +5,8 @@ import shutil
 from pathlib import Path
 from typing import cast
 
-from mcp_planning.models import Task, TaskList, TaskState
-from mcp_planning.config import DATA_DIR
+from mcp_todo.models import Task, TaskList, TaskState
+from mcp_todo.config import DATA_DIR
 
 
 class TestTaskListModel(unittest.TestCase):
@@ -19,8 +19,8 @@ class TestTaskListModel(unittest.TestCase):
         self.original_data_dir = DATA_DIR
         
         # Override DATA_DIR for testing
-        import mcp_planning.config
-        mcp_planning.config.DATA_DIR = self.temp_dir
+        import mcp_todo.config
+        mcp_todo.config.DATA_DIR = self.temp_dir
         
         # Create a task list with some tasks
         self.task_list = TaskList()
@@ -34,8 +34,8 @@ class TestTaskListModel(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures."""
         # Restore original DATA_DIR
-        import mcp_planning.config
-        mcp_planning.config.DATA_DIR = self.original_data_dir
+        import mcp_todo.config
+        mcp_todo.config.DATA_DIR = self.original_data_dir
         
         # Remove temporary directory
         shutil.rmtree(self.temp_dir)

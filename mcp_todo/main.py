@@ -6,8 +6,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import the MCP server and configuration
-from mcp_planning.server import mcp
-from mcp_planning.config import SERVER_HOST, SERVER_PORT, SERVER_NAME
+from mcp_todo.server import mcp
+from mcp_todo.config import SERVER_HOST, SERVER_PORT, SERVER_NAME
 
 
 def main():

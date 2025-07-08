@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Self, ForwardRef
 from pydantic import BaseModel, Field
 
-from mcp_planning.config import DATA_DIR
+from mcp_todo.config import DATA_DIR
 
 
 class TaskState(str, Enum):

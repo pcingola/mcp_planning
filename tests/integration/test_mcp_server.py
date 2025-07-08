@@ -9,9 +9,9 @@ from typing import Any, Dict
 
 from fastmcp import Client
 
-from mcp_planning.server import mcp
-from mcp_planning.config import DATA_DIR
-from mcp_planning.models import TaskState
+from mcp_todo.server import mcp
+from mcp_todo.config import DATA_DIR
+from mcp_todo.models import TaskState
 
 
 class TestMCPServerTools(IsolatedAsyncioTestCase):
@@ -38,7 +38,7 @@ class TestMCPServerTools(IsolatedAsyncioTestCase):
             shutil.rmtree(self.test_dir)
             
         # Clear the task list cache to ensure tests are isolated
-        from mcp_planning.server import task_list_cache
+        from mcp_todo.server import task_list_cache
         task_list_cache.clear()
     
     async def async_test_client(self):
