@@ -209,6 +209,46 @@ class TestTaskListModel(unittest.TestCase):
         self.assertFalse(task_list.delete("4"))  # Non-existent top-level
         self.assertFalse(task_list.delete("1.3"))  # Non-existent subtask
         self.assertFalse(task_list.delete("1.1.2"))  # Non-existent nested subtask
+        
+    def test_task_list_equality(self):
+        """Test that task lists are compared correctly for equality."""
+        # Create two empty task lists
+        task_list1 = TaskList()
+        task_list2 = TaskList()
+        
+        # Empty lists should be equal
+        self.assertEqual(task_list1, task_list2)
+        
+        # Add identical tasks to both lists
+        task1_1 = task_list1.add_task("Task 1")
+        task1_2 = task_list1.add_task("Task 2")
+        
+        task2_1 = task_list2.add_task("Task 1")
+        task2_2 = task_list2.add_task("Task 2")
+        
+        # Lists with identical tasks should be equal
+        self.assertEqual(task_list1, task_list2)
+        
+        # Add a subtask to one list but not the other
+        task1_1.add_task("Subtask 1.1")
+        self.assertNotEqual(task_list1, task_list2)
+        
+        # Make the lists identical again
+        task2_1.add_task("Subtask 1.1")
+        self.assertEqual(task_list1, task_list2)
+        
+        # Test that parent_task references don't cause infinite recursion
+        task = Task(description="Parent")
+        task_list3 = TaskList(parent_task=task)
+        task_list4 = TaskList()
+        
+        # Even though one has a parent_task and the other doesn't,
+        # they should be equal if their tasks are the same
+        self.assertEqual(task_list3, task_list4)
+        
+        # Add different tasks to make them not equal
+        task_list3.add_task("Task in list 3")
+        self.assertNotEqual(task_list3, task_list4)
 
 
 if __name__ == "__main__":

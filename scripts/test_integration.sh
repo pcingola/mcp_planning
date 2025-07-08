@@ -6,4 +6,4 @@ source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
 
 # Run integration tests
 cd "$PROJECT_DIR"
-python -m unittest discover -s tests/integration
+python -m unittest discover -s tests/integration -v

@@ -86,6 +86,30 @@ class Task(BaseModel):
 
     def __repr__(self) -> str:
         return self.to_markdown()
+        
+    def __eq__(self, other) -> bool:
+        """Compare tasks for equality while avoiding parent recursion."""
+        if not isinstance(other, Task):
+            return False
+            
+        # Compare basic attributes
+        if self.description != other.description or self.state != other.state:
+            return False
+            
+        # Compare subtasks if both exist
+        if self.subtasks is not None and other.subtasks is not None:
+            # Compare subtasks without considering their parent references
+            if len(self.subtasks.tasks) != len(other.subtasks.tasks):
+                return False
+                
+            for i, task in enumerate(self.subtasks.tasks):
+                if task != other.subtasks.tasks[i]:
+                    return False
+        elif self.subtasks is not None or other.subtasks is not None:
+            # One has subtasks, the other doesn't
+            return False
+            
+        return True
 
 
 class TaskList(BaseModel):
@@ -242,4 +266,20 @@ class TaskList(BaseModel):
 
     def __repr__(self) -> str:
         return self.to_markdown()
+        
+    def __eq__(self, other) -> bool:
+        """Compare task lists for equality while avoiding parent recursion."""
+        if not isinstance(other, TaskList):
+            return False
+            
+        # Compare tasks list length
+        if len(self.tasks) != len(other.tasks):
+            return False
+            
+        # Compare each task in the list
+        for i, task in enumerate(self.tasks):
+            if task != other.tasks[i]:
+                return False
+                
+        return True
 
